@@ -15,14 +15,14 @@ public class Client {
     private Long id;
 
     private String name;
-    private String latname;
+    private String lastname;
 
     public Client() {
     }
 
-    public Client(String name, String latname) {
+    public Client(String name, String lastname) {
         this.name = name;
-        this.latname = latname;
+        this.lastname = lastname;
     }
     
     public Long getId() {
@@ -38,15 +38,15 @@ public class Client {
         this.name = name;
     }
     public String getLatname() {
-        return latname;
+        return lastname;
     }
-    public void setLatname(String latname) {
-        this.latname = latname;
+    public void setLatname(String lastname) {
+        this.lastname = lastname;
     }
 
     @Override
     public String toString() {
-        return "{id=" + id + ", name=" + name + ", latname=" + latname + "}";
+        return "{id=" + id + ", name=" + name + ", latname=" + lastname + "}";
     }
 
     

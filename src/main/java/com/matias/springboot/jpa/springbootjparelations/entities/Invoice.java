@@ -53,5 +53,14 @@ public class Invoice {
         return "{id=" + id + ", description=" + description + ", total=" + total + ", client=" + client + "}";
     }
 
+    public Client getClient() {
+        return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
+    }
+
+
     
 }
