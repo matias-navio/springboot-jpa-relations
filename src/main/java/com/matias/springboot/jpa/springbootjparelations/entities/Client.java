@@ -1,9 +1,15 @@
 package com.matias.springboot.jpa.springbootjparelations.entities;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -16,6 +22,9 @@ public class Client {
 
     private String name;
     private String lastname;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Address> addresses = new ArrayList<>();;
 
     public Client() {
     }
@@ -37,18 +46,24 @@ public class Client {
     public void setName(String name) {
         this.name = name;
     }
-    public String getLatname() {
+    public String getLastname() {
         return lastname;
     }
-    public void setLatname(String lastname) {
+    public void setLastname(String lastname) {
         this.lastname = lastname;
+    }
+
+    public List<Address> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(List<Address> addresses) {
+        this.addresses = addresses;
     }
 
     @Override
     public String toString() {
-        return "{id=" + id + ", name=" + name + ", latname=" + lastname + "}";
+        return "{id=" + id + ", name=" + name + ", latname=" + lastname + ", addresses=" + addresses + "}";
     }
-
-    
 
 }
