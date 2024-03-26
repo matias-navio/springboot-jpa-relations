@@ -9,8 +9,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
 @Table(name = "clients")
@@ -18,13 +20,20 @@ public class Client {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id; 
 
     private String name;
     private String lastname;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Address> addresses = new ArrayList<>();;
+    // manera de hace una tabla intermedia personalizada, creando la tabla y las columnas
+    @JoinTable(
+        name = "tbl_clientes_to_direcciones", 
+        joinColumns = @JoinColumn(name = "id_cliente"), 
+        inverseJoinColumns = @JoinColumn(name = "id_direccion"), 
+        uniqueConstraints = @UniqueConstraint(columnNames = {"id_direccion"})
+    )
+    private List<Address> addresses = new ArrayList<>();
 
     public Client() {
     }

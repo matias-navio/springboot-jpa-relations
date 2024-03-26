@@ -33,9 +33,65 @@ public class SpringbootJpaRelationsApplication implements CommandLineRunner{
 	@Override
 	public void run(String... args) throws Exception {
 
-		oneToManyFindByIdClient();
+		removeAddressFindById();
 		
 	}	
+
+	@Transactional
+	public void removeAddressFindById(){
+
+		Optional<Client> optionalClient = clientRepository.findById(2L);
+
+		optionalClient.ifPresentOrElse(client -> {
+			client.setAddresses(Arrays.asList(
+				new Address("Viamonte", 444),
+				new Address("Savedra", 890)
+			));
+			// Address address1 = new Address("Mitre", 274);
+			// Address address2 = new Address("Lima", 564);
+			// client.setAddresses(Arrays.asList(address1, address2));
+
+			clientRepository.save(client);
+
+			System.out.println("====== Buscamos un cliente por el ID y le asignamos direcciones ======");
+			System.out.println(client);
+
+			Optional<Client> optionalClient2 = clientRepository.findById(2L);
+			optionalClient2.ifPresent(c -> {
+				c.getAddresses().remove(1);
+				clientRepository.save(c);
+				System.out.println("====== Si el cliente está presente eliminamos una direccion ======");
+				System.out.println(c);
+			});
+			
+
+		}, () -> System.out.println("El cliente no esta en la base de datos!!!"));
+	}
+
+	@Transactional
+	public void removeAddress(){
+		Client client = new Client("Exequiel", "Carrizo");
+		
+		Address address1 = new Address("Mitre", 209);
+		Address address2 = new Address("La Valle", 2211);
+		
+		client.getAddresses().add(address1);
+		client.getAddresses().add(address2);
+
+		clientRepository.save(client);
+		System.out.println("====== Cliente nuevo, con una lista de direcciones ======");
+		System.out.println(client);
+
+		Optional<Client> currentClient = clientRepository.findById(3L);
+
+		currentClient.ifPresentOrElse(c -> { 
+			c.getAddresses().remove(address1);
+
+			clientRepository.save(c);
+			System.out.println("====== Creamos un cliente, lo buscamos y si existe eliminamos su direccion ======");
+			System.out.println(c);
+		}, () -> System.out.println("El cliente no existe en la base de datos!!"));
+	}
 
 	@Transactional
 	public void oneToManyFindByIdClient(){
