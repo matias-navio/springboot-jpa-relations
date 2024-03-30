@@ -33,10 +33,15 @@ public class Client {
         inverseJoinColumns = @JoinColumn(name = "id_direccion"), 
         uniqueConstraints = @UniqueConstraint(columnNames = {"id_direccion"})
     )
-    private List<Address> addresses = new ArrayList<>();
+    private List<Address> addresses;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "client")
+    private List<Invoice> invoices;
 
     public Client() {
-    }
+        this.addresses = new ArrayList<>();
+        this.invoices = new ArrayList<>();
+    } 
 
     public Client(String name, String lastname) {
         this.name = name;
@@ -70,9 +75,34 @@ public class Client {
         this.addresses = addresses;
     }
 
+    public List<Invoice> getInvoices() {
+        return invoices;
+    }
+
+    public void setInvoices(List<Invoice> invoices) {
+        this.invoices = invoices;
+    }
+
+    // metodo para agregar facturas
+    public Client addInvoice(Invoice invoice){
+        // agregamos las facturas que nos pasen por parametro
+        invoices.add(invoice);
+        // se la asignamos al cliente
+        invoice.setClient(this);
+        return this;
+    }
+    // método para eliminar facturas
+    public void removeInvoice(Invoice invoice){
+        // con el método remove de list eliminamos la factura del parámetro
+        invoices.remove(invoice);
+        invoice.setClient(null);
+    }
+
     @Override
     public String toString() {
-        return "{id=" + id + ", name=" + name + ", latname=" + lastname + ", addresses=" + addresses + "}";
+        return "{id=" + id + ", name=" + name + ", latname=" + lastname + ", addresses=" + addresses + ", invoices="+ invoices + "}";
     }
+
+   
 
 }

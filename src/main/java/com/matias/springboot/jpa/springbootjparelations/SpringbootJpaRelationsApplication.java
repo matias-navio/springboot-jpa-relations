@@ -33,9 +33,93 @@ public class SpringbootJpaRelationsApplication implements CommandLineRunner{
 	@Override
 	public void run(String... args) throws Exception {
 
-		removeAddressFindById();
-		
+		removeInvoiceBidirectionalFindById();		
 	}	
+
+	@Transactional
+	public void removeInvoiceBidirectionalFindById(){
+		// buscamos cliente
+		Optional<Client> optionalClient = clientRepository.findOne(1L);
+
+		// método par aver si esta presente
+		optionalClient.ifPresentOrElse(client -> {
+			// creamos 2 facturas
+			Invoice invoice1 = new Invoice("Factura de oficina", 2500L);
+			Invoice invoice2 = new Invoice("Factura de deporte", 2200L);
+
+			// se las agregamos al cliente
+			client.addInvoice(invoice1)
+					.addInvoice(invoice2);
+			// lo guardamos en la base
+			clientRepository.save(client);
+
+			System.out.println("====== Cliente con sus facturas ======");
+			System.out.println(client);
+
+			// buscamos al mismo cliente con las facturas guardadas
+			Optional<Client> optionalClientDb = clientRepository.findOne(1L);
+
+			optionalClientDb.ifPresentOrElse(clientDb -> {
+				// buscamos una factura en la base de datos
+				Optional<Invoice> optionalInvoice =  invoiceRepository.findById(1L);
+
+				optionalInvoice.ifPresent(invoice -> {
+					// para esto creamos metodo hashCode e equals, porque si no elimina por instacnia y no por objeto
+					clientDb.removeInvoice(invoice);
+					invoice.setClient(null);
+
+					// guardamos e implimimos cliente con las facturas eliminadas
+					clientRepository.save(clientDb);
+					
+					System.out.println("===== Cliente con una factura eliminada ======");
+					System.out.println(clientDb);
+				});
+
+			}, () -> System.out.println("El cliente no esta en la base de datos!"));
+		}, () -> System.out.println("El cliente no esta en la base de datos!"));
+
+	}
+
+	public void oneToManyBidirectionalFindById(){
+		// buscamos un cliente en la base de datos
+		Optional<Client> optionalClient = clientRepository.findOne(2L);
+
+		optionalClient.ifPresentOrElse(client -> {
+			Invoice invoice1 = new Invoice("Factura de oficina", 2500L);
+			Invoice invoice2 = new Invoice("Factura de deportes", 500L);
+			Invoice invoice3 = new Invoice("Factura de la casa", 470L);
+
+			client.addInvoice(invoice1)
+				  .addInvoice(invoice2)
+				  .addInvoice(invoice3);
+
+			clientRepository.save(client);
+
+			System.out.println("====== Buscamos un cliente en la db y le asignamos dos facturas");
+			System.out.println(client);
+		}, () -> System.out.println("El cliente no se encuentra en la db!!!"));
+
+	}
+
+	public void oneToManyBidirectional(){
+		// creamos cliente nuevo
+		Client client = new Client("Juan", "Elias");
+
+		// creamos dos facturas 
+		Invoice invoice1 = new Invoice("Factura de oficina", 2500L);
+		Invoice invoice2 = new Invoice("Factura de deportes", 500L);
+
+		// agregamos las facturas al cliente
+		client.addInvoice(invoice1)
+			  .addInvoice(invoice2);
+		
+		// guradamos cliente en la db 
+		clientRepository.save(client);
+
+		System.out.println("====== Creamos cliente y le asignamos facturas ======");
+		System.out.println(client);
+
+	}
 
 	@Transactional
 	public void removeAddressFindById(){
@@ -50,7 +134,7 @@ public class SpringbootJpaRelationsApplication implements CommandLineRunner{
 			// Address address1 = new Address("Mitre", 274);
 			// Address address2 = new Address("Lima", 564);
 			// client.setAddresses(Arrays.asList(address1, address2));
-
+ 
 			clientRepository.save(client);
 
 			System.out.println("====== Buscamos un cliente por el ID y le asignamos direcciones ======");
