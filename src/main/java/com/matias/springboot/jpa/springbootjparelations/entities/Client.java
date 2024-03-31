@@ -5,12 +5,14 @@ import java.util.List;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
@@ -37,6 +39,9 @@ public class Client {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "client")
     private List<Invoice> invoices;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "client")
+    private ClientDetails clientDetails;
 
     public Client() {
         this.addresses = new ArrayList<>();
@@ -83,6 +88,21 @@ public class Client {
         this.invoices = invoices;
     }
 
+    public ClientDetails getClientDetails() {
+        return clientDetails;
+    }
+
+    // seteamos el detail en client y el cliente en el detail
+    public void setClientDetails(ClientDetails clientDetails) {
+        this.clientDetails = clientDetails;
+        clientDetails.setClient(this);
+    }
+
+    public void removeClientDetails(ClientDetails clientDetails) {
+        clientDetails.setClient(null);
+        this.clientDetails = null;
+    }
+
     // metodo para agregar facturas
     public Client addInvoice(Invoice invoice){
         // agregamos las facturas que nos pasen por parametro
@@ -100,7 +120,13 @@ public class Client {
 
     @Override
     public String toString() {
-        return "{id=" + id + ", name=" + name + ", latname=" + lastname + ", addresses=" + addresses + ", invoices="+ invoices + "}";
+        return "{id=" + id + 
+                ", name=" + name + 
+                ", latname=" + lastname + 
+                ", addresses=" + addresses + 
+                ", invoices=" + invoices +
+                ", clientDetails=" + clientDetails + 
+                "}";
     }
 
    

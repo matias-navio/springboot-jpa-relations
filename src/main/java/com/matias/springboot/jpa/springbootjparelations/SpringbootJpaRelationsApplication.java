@@ -1,8 +1,6 @@
 package com.matias.springboot.jpa.springbootjparelations;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.matias.springboot.jpa.springbootjparelations.entities.Address;
 import com.matias.springboot.jpa.springbootjparelations.entities.Client;
+import com.matias.springboot.jpa.springbootjparelations.entities.ClientDetails;
 import com.matias.springboot.jpa.springbootjparelations.entities.Invoice;
+import com.matias.springboot.jpa.springbootjparelations.repositories.ClientDetailsRepository;
 import com.matias.springboot.jpa.springbootjparelations.repositories.ClientRepository;
 import com.matias.springboot.jpa.springbootjparelations.repositories.InvoiceRepository;
 
@@ -23,9 +23,11 @@ public class SpringbootJpaRelationsApplication implements CommandLineRunner{
 
 	@Autowired
 	private ClientRepository clientRepository;
-
 	@Autowired
 	private InvoiceRepository invoiceRepository;
+	@Autowired
+	private ClientDetailsRepository clientDetailsRepository;
+
 	public static void main(String[] args) {
 		SpringApplication.run(SpringbootJpaRelationsApplication.class, args);
 	}
@@ -33,8 +35,74 @@ public class SpringbootJpaRelationsApplication implements CommandLineRunner{
 	@Override
 	public void run(String... args) throws Exception {
 
-		removeInvoiceBidirectionalFindById();		
+		oneToOneBidirectionalFindById();		
 	}	
+
+	@Transactional
+	public void oneToOneBidirectionalFindById(){
+		
+		Optional<Client> optionalClient = clientRepository.findOne(1L);
+
+		optionalClient.ifPresentOrElse(client -> {
+
+			ClientDetails details = new ClientDetails(true, 5000);
+
+			client.setClientDetails(details); 		 
+			clientRepository.save(client);
+
+			System.out.println(client);
+
+		}, () -> System.out.println("El cliente no se encuentra en la base de datos!!"));
+
+	}
+
+	@Transactional
+	public void oneToOneBidirectional(){
+		
+		Client client = new Client("Exequiel", "Carrizo");
+
+		ClientDetails details = new ClientDetails(true, 5000);
+
+		client.setClientDetails(details);
+		details.setClient(client);
+		 
+		clientRepository.save(client);
+
+		System.out.println(client);
+	}
+
+	@Transactional
+	public void oneToOneFidById(){ 
+		Optional<Client> optionalClient = clientRepository.findOne(1L);
+
+		optionalClient.ifPresentOrElse(client -> {
+
+			ClientDetails details = new ClientDetails(false, 1500);
+			clientDetailsRepository.save(details);
+
+			client.setClientDetails(details);
+
+			clientRepository.save(client);
+
+			System.out.println("====== Buscamos un cliente y le asignamos detalles ======");
+			System.out.println(client);
+		}, () -> System.out.println("El cliente no se encuentra en la base de datos!"));
+	}
+
+	@Transactional
+	public void oneToOneCreateClient(){
+
+		ClientDetails clientDetail = new ClientDetails(true, 1000);
+		clientDetailsRepository.save(clientDetail);
+
+		Client client = new Client("Exeuiel", "Carrizo");
+		client.setClientDetails(clientDetail);
+
+		clientRepository.save(client);
+
+		System.out.println("====== Cliente creado con sus detalles ======");
+		System.out.println(client);
+	}
 
 	@Transactional
 	public void removeInvoiceBidirectionalFindById(){
