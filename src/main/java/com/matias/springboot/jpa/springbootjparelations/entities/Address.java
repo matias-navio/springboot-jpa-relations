@@ -17,7 +17,6 @@ public class Address {
 
     private String street;
     private Integer number;
-
     
     public Address() {
     }

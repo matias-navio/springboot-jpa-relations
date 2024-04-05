@@ -99,7 +99,7 @@ public class Client {
     }
 
     public void removeClientDetails(ClientDetails clientDetails) {
-        clientDetails.setClient(null);
+        clientDetails.setClient(null);  
         this.clientDetails = null;
     }
 

@@ -1,7 +1,11 @@
 package com.matias.springboot.jpa.springbootjparelations;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -12,10 +16,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.matias.springboot.jpa.springbootjparelations.entities.Address;
 import com.matias.springboot.jpa.springbootjparelations.entities.Client;
 import com.matias.springboot.jpa.springbootjparelations.entities.ClientDetails;
+import com.matias.springboot.jpa.springbootjparelations.entities.Course;
 import com.matias.springboot.jpa.springbootjparelations.entities.Invoice;
+import com.matias.springboot.jpa.springbootjparelations.entities.Student;
 import com.matias.springboot.jpa.springbootjparelations.repositories.ClientDetailsRepository;
 import com.matias.springboot.jpa.springbootjparelations.repositories.ClientRepository;
+import com.matias.springboot.jpa.springbootjparelations.repositories.CourseRepository;
 import com.matias.springboot.jpa.springbootjparelations.repositories.InvoiceRepository;
+import com.matias.springboot.jpa.springbootjparelations.repositories.StudentRepository;
 
 
 @SpringBootApplication
@@ -27,6 +35,10 @@ public class SpringbootJpaRelationsApplication implements CommandLineRunner{
 	private InvoiceRepository invoiceRepository;
 	@Autowired
 	private ClientDetailsRepository clientDetailsRepository;
+	@Autowired
+	private StudentRepository studentRepository;
+	@Autowired
+	private CourseRepository courseRepository;
 
 	public static void main(String[] args) {
 		SpringApplication.run(SpringbootJpaRelationsApplication.class, args);
@@ -35,8 +47,97 @@ public class SpringbootJpaRelationsApplication implements CommandLineRunner{
 	@Override
 	public void run(String... args) throws Exception {
 
-		oneToOneBidirectionalFindById();		
+		manyToManyRemoveFind();		
 	}	
+
+	@Transactional
+	public void manyToManyBidireccional(){
+
+		Student student1 = new Student("Santiago", "Federisi");
+		Student student2 = new Student("Juan", "Elias");
+
+		Course course1 = new Course("Spring desde cero", "Andres Guzman");
+		Course course2 = new Course("Git y GitHub", "Franco Politto");
+
+		student1.addCourse(course1).addCourse(course2);
+		student2.addCourse(course2);
+
+		studentRepository.saveAll(Set.of(student1, student2));
+
+		System.out.println(student1);
+		System.out.println(student2);
+
+
+	}
+
+	@Transactional
+	public void manyToManyRemoveFind(){
+		Student student1 = studentRepository.findById(1L).get();
+		Student student2 = studentRepository.findById(2L).get();
+		
+		Course course1 = courseRepository.findById(1L).get();
+		Course course2 = courseRepository.findById(2L).get();
+
+		student1.setCourses(Set.of(course1, course2));
+		student2.setCourses(Set.of(course1));
+
+		studentRepository.saveAll(Set.of(student1, student2));
+
+		System.out.println(student1);
+		System.out.println(student2);
+
+		Optional<Student> optionalStudent = studentRepository.findById(1L);
+
+		optionalStudent.ifPresent(student -> {
+			Optional<Course> optionalCourse = courseRepository.findById(2L);
+
+			if(optionalCourse.isPresent()){
+				Course courseDb = optionalCourse.get();
+
+				student.removeCourse(courseDb);;
+
+				studentRepository.save(student);
+				System.out.println(student);
+			}
+		});
+		 
+	}
+
+	@Transactional
+	public void manyToManyFind(){
+
+		Student student1 = studentRepository.findById(1L).get();
+		Student student2 = studentRepository.findById(2L).get();
+		
+		Course course1 = courseRepository.findById(1L).get();
+		Course course2 = courseRepository.findById(2L).get();
+
+		student1.setCourses(Set.of(course1, course2));
+		student2.setCourses(Set.of(course1));
+
+		studentRepository.saveAll(Set.of(student1, student2));
+
+		System.out.println(student1);
+		System.out.println(student2);
+	}
+
+	@Transactional
+	public void manyToMany(){
+
+		Student student1 = new Student("Santiago", "Federisi");
+		Student student2 = new Student("Juan", "Elias");
+
+		Course course1 = new Course("Spring desde cero", "Andres Guzman");
+		Course course2 = new Course("Git y GitHub", "Franco Politto");
+
+		student1.setCourses(Set.of(course1, course2));
+		student2.setCourses(Set.of(course2));
+
+		studentRepository.saveAll(Set.of(student1, student2));
+
+		System.out.println(student1);
+		System.out.println(student2);
+	}
 
 	@Transactional
 	public void oneToOneBidirectionalFindById(){
